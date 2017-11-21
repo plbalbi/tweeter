@@ -6,11 +6,13 @@ import (
 )
 
 func TestPublishedTweetIsSaved(t *testing.T) {
-	var tweet string = "This is my first tweet"
+
+	tweet := "This is my first tweet"
+	service.tweet = "perro"
 
 	service.PublishTweet(tweet)
 
-	if service.Tweet != tweet {
+	if service.GetTweet() != tweet {
 		t.Error("Expected tweet is", tweet)
 	}
 }
