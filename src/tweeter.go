@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/abiosoft/ishell"
 	"github.com/tweeter/src/domain"
 	"github.com/tweeter/src/service"
@@ -18,7 +20,15 @@ func main() {
 			defer c.ShowPrompt(true)
 			c.Print("Write you tweet: ")
 			tweet := c.ReadLine()
-			service.PublishTweet(domain.NewTweet("p", tweet))
+			c.Print("Write your user: ")
+			user := c.ReadLine()
+			err := service.PublishTweet(domain.NewTweet(user, tweet))
+			if err != nil {
+				if err.Error() != "user is required" {
+					fmt.Println("user is required to tweet")
+					return
+				}
+			}
 			c.Print("Tweet sent\n")
 			return
 		},

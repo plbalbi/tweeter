@@ -59,3 +59,17 @@ func TestPublishAndCleanTweet(t *testing.T) {
 		t.Error("Tweet expected to be 'nil'")
 	}
 }
+
+func TestTweetWithoutUserIsNotPublished(t *testing.T) {
+	var tweet *domain.Tweet
+	var user string
+	text := "this is a tweet"
+	tweet = domain.NewTweet(user, text)
+
+	var err error
+	err = service.PublishTweet(tweet)
+
+	if err != nil && err.Error() != "user is required" {
+		t.Error("Expected error is user required")
+	}
+}
