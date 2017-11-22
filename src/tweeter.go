@@ -24,8 +24,12 @@ func main() {
 			user := c.ReadLine()
 			err := service.PublishTweet(domain.NewTweet(user, tweet))
 			if err != nil {
-				if err.Error() != "user is required" {
+				if err.Error() == "user is required" {
 					fmt.Println("user is required to tweet")
+					return
+				}
+				if err.Error() == "text is required" {
+					fmt.Println("text is required to tweet")
 					return
 				}
 			}
