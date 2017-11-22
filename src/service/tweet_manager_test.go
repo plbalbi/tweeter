@@ -15,7 +15,7 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 	user := "perro"
 	text := "guau"
 
-	tweet = service.NewTweet(user, text)
+	tweet = domain.NewTweet(user, text)
 
 	// op
 	service.PublishTweet(tweet)
@@ -39,7 +39,7 @@ func TestPublishAndCleanTweet(t *testing.T) {
 	user := "caballo"
 	text := "igihhiih"
 
-	tweet := service.NewTweet(user, text)
+	tweet := domain.NewTweet(user, text)
 
 	service.PublishTweet(tweet)
 
