@@ -32,6 +32,10 @@ func main() {
 					fmt.Println("text is required to tweet")
 					return
 				}
+				if err.Error() == "text longer that 140 characters" {
+					fmt.Println("text too long to tweet")
+					return
+				}
 			}
 			c.Print("Tweet sent\n")
 			return
