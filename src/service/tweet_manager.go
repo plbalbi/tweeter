@@ -30,6 +30,7 @@ func PublishTweet(t *domain.Tweet) error {
 
 func CleanTweet() {
 	tweets = nil
+	InitializeService()
 }
 
 func GetTweets() [](*domain.Tweet) {
