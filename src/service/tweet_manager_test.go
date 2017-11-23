@@ -17,7 +17,7 @@ func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user, text string) 
 		return false
 	}
 
-	if id < 0 {
+	if id != tweet.Id {
 		t.Error("Expected id cannot be negative")
 		return false
 	}
@@ -170,7 +170,7 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 		return
 	}
 
-	if !isValidTweet(t, secondPublishedTweet, 0, user, secondText) {
+	if !isValidTweet(t, secondPublishedTweet, 1, user, secondText) {
 		return
 	}
 }
