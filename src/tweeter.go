@@ -26,15 +26,15 @@ func main() {
 			_, err := service.PublishTweet(domain.NewTweet(user, tweet))
 			if err != nil {
 				if err.Error() == "user is required" {
-					fmt.Println("user is required to tweet")
+					c.Print("user is required to tweet")
 					return
 				}
 				if err.Error() == "text is required" {
-					fmt.Println("text is required to tweet")
+					c.Print("text is required to tweet")
 					return
 				}
 				if err.Error() == "text longer that 140 characters" {
-					fmt.Println("text too long to tweet")
+					c.Print("text too long to tweet")
 					return
 				}
 			}
@@ -63,6 +63,19 @@ func main() {
 			for index, tweet := range tweets {
 				c.Println("Tweet #" + strconv.Itoa(index) + " | User: " + tweet.User + "\nText: " + tweet.Text)
 			}
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "getTweetById",
+		Help: "Access a tweet by id",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Which tweet should i bring? [id] : ")
+			stringId := c.ReadLine()
+			id, _ := strconv.Atoi(stringId)
+			fmt.Println(service.GetTweetById(id))
 			return
 		},
 	})
