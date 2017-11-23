@@ -3,26 +3,36 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/abiosoft/ishell"
 	"github.com/tweeter/src/domain"
 	"github.com/tweeter/src/service"
 )
 
+func getPreetyHour(date *time.Time) string {
+	return fmt.Sprintf("%d:%d", date.Hour(), date.Minute())
+}
+
+func getPreetyDate(date *time.Time) string {
+	return fmt.Sprintf("%s %d, %d", date.Month().String(), date.Day(), date.Year())
+}
+
 func main() {
 	shell := ishell.New()
 	shell.SetPrompt("Tweeter >> ")
 	shell.Print("Type 'help' to know commands\n")
+	service.InitializeService()
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "publishTweet",
 		Help: "Publishes a Tweet",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			c.Print("Write you tweet: ")
-			tweet := c.ReadLine()
 			c.Print("Write your user: ")
 			user := c.ReadLine()
+			c.Print("Write you tweet: ")
+			tweet := c.ReadLine()
 			publishedTweetId, err := service.PublishTweet(domain.NewTweet(user, tweet))
 			if err != nil {
 				if err.Error() == "user is required" {
@@ -113,6 +123,42 @@ func main() {
 			userToFindTweetsFrom := c.ReadLine()
 			userTweets := service.GetTweetsByUser(userToFindTweetsFrom)
 			c.Print(userTweets)
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "follow",
+		Help: "follow a user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("you are: ")
+			whoAmI := c.ReadLine()
+			c.Print("who you wanna follow: ")
+			wannaFollow := c.ReadLine()
+			err := service.Follow(whoAmI, wannaFollow)
+			if err != nil && err.Error() == "user to follow not found" {
+				c.Printf("user %s has not tweeted yet...", wannaFollow)
+			}
+			c.Print("Followed\n")
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "getTimeline",
+		Help: "get timeline a user sees",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("whose timeline: ")
+			user := c.ReadLine()
+			timeline := service.Timeline(user)
+			c.Printf("\tTimeline from %s\n", user)
+			c.Print("---------------------------------\n")
+			for _, tweet := range timeline {
+				c.Printf("%s tweeted at %s, on %s:\n\t%s\n", tweet.User, getPreetyHour(tweet.Date),
+					getPreetyDate(tweet.Date), tweet.Text)
+			}
 			return
 		},
 	})
