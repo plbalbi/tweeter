@@ -28,7 +28,7 @@ func PublishTweet(t *domain.Tweet) (int, error) {
 	return len(tweets) - 1, nil
 }
 
-func CleanTweet() {
+func CleanTweets() {
 	tweets = nil
 	InitializeService()
 }

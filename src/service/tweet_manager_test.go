@@ -9,7 +9,7 @@ import (
 
 // Auxiliar functions
 
-func isValidTweetWithId(t *testing.T, tweet *domain.Tweet, id int, user, text string) bool {
+func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user, text string) bool {
 
 	if tweet.User != user && tweet.Text != text {
 		t.Errorf("Expected tweet is %s: %s \nbut is %s: %s",
@@ -81,7 +81,7 @@ func TestPublishAndCleanTweet(t *testing.T) {
 		t.Error("Expected date cannot be nil")
 	}
 
-	service.CleanTweet()
+	service.CleanTweets()
 
 	if service.GetTweet() != nil {
 		t.Error("Tweet expected to be 'nil'")
@@ -194,5 +194,5 @@ func TestCanRetrieveTweetById(t *testing.T) {
 	// Validation
 	publishedTweet := service.GetTweetById(id)
 
-	isValidTweetWithId(t, publishedTweet, id, user, text)
+	isValidTweet(t, publishedTweet, id, user, text)
 }
