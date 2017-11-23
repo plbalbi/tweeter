@@ -104,5 +104,18 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "getUserTweets",
+		Help: "Get all user tweets",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("User to find tweets from: ")
+			userToFindTweetsFrom := c.ReadLine()
+			userTweets := service.GetTweetsByUser(userToFindTweetsFrom)
+			c.Print(userTweets)
+			return
+		},
+	})
+
 	shell.Run()
 }
