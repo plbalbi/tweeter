@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/abiosoft/ishell"
 	"github.com/tweeter/src/domain"
@@ -22,7 +23,7 @@ func main() {
 			tweet := c.ReadLine()
 			c.Print("Write your user: ")
 			user := c.ReadLine()
-			err := service.PublishTweet(domain.NewTweet(user, tweet))
+			_, err := service.PublishTweet(domain.NewTweet(user, tweet))
 			if err != nil {
 				if err.Error() == "user is required" {
 					fmt.Println("user is required to tweet")
@@ -49,6 +50,19 @@ func main() {
 			defer c.ShowPrompt(true)
 			tweet := service.GetTweet()
 			c.Println(tweet)
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "showTweets",
+		Help: "Show all available tweets",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			tweets := service.GetTweets()
+			for index, tweet := range tweets {
+				c.Println("Tweet #" + strconv.Itoa(index) + " | User: " + tweet.User + "\nText: " + tweet.Text)
+			}
 			return
 		},
 	})
