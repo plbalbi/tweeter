@@ -6,15 +6,15 @@ import (
 	"github.com/tweeter/src/domain"
 )
 
-var tweets [](*domain.Tweet)
-var lastUser string
-var lastCount int
+var tweets map[string][]*domain.Tweet
+var lastFreeId int
+var lastAddedTweet *domain.Tweet
 
 func InitializeService() {
 	// initialize empty slice
-	lastUser = ""
-	lastCount = 0
-	tweets = make([](*domain.Tweet), 0)
+	lastFreeId = 0
+	tweets = make(map[string][]*domain.Tweet)
+	lastAddedTweet = nil
 }
 
 func PublishTweet(t *domain.Tweet) (int, error) {
@@ -27,12 +27,11 @@ func PublishTweet(t *domain.Tweet) (int, error) {
 	if len(t.Text) > 140 {
 		return 0, fmt.Errorf("text longer that 140 characters")
 	}
-	if t.User == lastUser {
-		lastCount++
-	}
-	t.Id = len(tweets) - 1
-	tweets = append(tweets, t)
-	return len(tweets) - 1, nil
+	t.Id = lastFreeId
+	lastFreeId++
+	lastAddedTweet = t
+	tweets[t.User] = append(tweets[t.User], t)
+	return t.Id, nil
 }
 
 func CleanTweets() {
@@ -40,8 +39,14 @@ func CleanTweets() {
 	InitializeService()
 }
 
+// solucion medio mala
+// cambiar a iterador o una lista media ensamblada
 func GetTweets() [](*domain.Tweet) {
-	return tweets
+	allTweets := make([]*domain.Tweet, 0)
+	for _, tweets := range tweets {
+		allTweets = append(allTweets, tweets...)
+	}
+	return allTweets
 }
 
 func NoTweets() bool {
@@ -49,20 +54,20 @@ func NoTweets() bool {
 }
 
 func GetTweetById(id int) *domain.Tweet {
-	return tweets[id]
+	allTweets := GetTweets()
+	for _, tweet := range allTweets {
+		if tweet.Id == id {
+			return tweet
+		}
+	}
+	return nil
 }
 
 func GetTweet() *domain.Tweet {
-	if NoTweets() {
-		return nil
-	}
-	return tweets[len(tweets)-1]
+	return lastAddedTweet
 }
 
 func CountTweetsByUser(user string) int {
-	if lastUser == user {
-		return lastCount
-	}
 	count := 0
 	for _, tweet := range GetTweets() {
 		if tweet.User == user {
@@ -70,4 +75,8 @@ func CountTweetsByUser(user string) int {
 		}
 	}
 	return count
+}
+
+func GetTweetsByUser(user string) []*domain.Tweet {
+	return tweets[user]
 }

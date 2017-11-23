@@ -226,3 +226,46 @@ func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
 	}
 
 }
+
+func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
+
+	// Initialization
+	service.InitializeService()
+
+	var tweet, secondTweet, thirdTweet *domain.Tweet
+
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "This is my first tweet"
+	secondText := "This is my second tweet"
+
+	tweet = domain.NewTweet(user, text)
+	secondTweet = domain.NewTweet(user, secondText)
+	thirdTweet = domain.NewTweet(anotherUser, text)
+
+	firstId, _ := service.PublishTweet(tweet)
+	secondId, _ := service.PublishTweet(secondTweet)
+	service.PublishTweet(thirdTweet)
+
+	// Operation
+	tweets := service.GetTweetsByUser(user)
+
+	// Validation
+	if len(tweets) != 2 {
+
+		t.Errorf("Expected size is 2 but was %d", len(tweets))
+		return
+	}
+
+	firstPublishedTweet := tweets[0]
+	secondPublishedTweet := tweets[1]
+
+	if !isValidTweet(t, firstPublishedTweet, firstId, user, text) {
+		return
+	}
+
+	if !isValidTweet(t, secondPublishedTweet, secondId, user, secondText) {
+		return
+	}
+
+}
