@@ -74,3 +74,11 @@ func CountTweetsByUser(user string) int {
 func GetTweetsByUser(user string) []*domain.Tweet {
 	return tweets[user]
 }
+
+func Follow(user string, toFollow string) error {
+	return nil
+}
+
+func Timeline(user string) []*domain.Tweet {
+	return nil
+}

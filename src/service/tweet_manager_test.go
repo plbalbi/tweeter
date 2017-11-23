@@ -269,3 +269,24 @@ func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 	}
 
 }
+
+func TestFollowAndViewFollowersTimeline(t *testing.T) {
+	Tweet1 := domain.NewTweet("nportas", "hola")
+	Tweet2 := domain.NewTweet("mercadolibre", "perro")
+
+	tweet1Id, _ := service.PublishTweet(Tweet1)
+	tweet2Id, _ := service.PublishTweet(Tweet2)
+
+	service.Follow("grupoesfera", "nportas")
+	service.Follow("grupoesfera", "mercadolibre")
+
+	Timeline := service.Timeline("grupoesfera")
+
+	if len(Timeline) != 2 {
+		t.Errorf("Expected timeline lenght is 2, when actual is %d", len(Timeline))
+		return
+	}
+
+	isValidTweet(t, Tweet1, tweet1Id, "nportas", "hola")
+	isValidTweet(t, Tweet2, tweet2Id, "mercadolibre", "perro")
+}
