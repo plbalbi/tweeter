@@ -23,7 +23,7 @@ func main() {
 			tweet := c.ReadLine()
 			c.Print("Write your user: ")
 			user := c.ReadLine()
-			_, err := service.PublishTweet(domain.NewTweet(user, tweet))
+			publishedTweetId, err := service.PublishTweet(domain.NewTweet(user, tweet))
 			if err != nil {
 				if err.Error() == "user is required" {
 					c.Print("user is required to tweet")
@@ -38,7 +38,7 @@ func main() {
 					return
 				}
 			}
-			c.Print("Tweet sent\n")
+			c.Printf("Tweet sent with id %d\n", publishedTweetId)
 			return
 		},
 	})

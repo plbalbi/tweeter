@@ -17,20 +17,8 @@ func isValidTweetWithId(t *testing.T, tweet *domain.Tweet, id int, user, text st
 		return false
 	}
 
-	if tweet.Date == nil {
-		t.Error("Expected date can't be nil")
-		return false
-	}
-
-	return true
-
-}
-
-func isValidTweet(t *testing.T, tweet *domain.Tweet, user, text string) bool {
-
-	if tweet.User != user && tweet.Text != text {
-		t.Errorf("Expected tweet is %s: %s \nbut is %s: %s",
-			user, text, tweet.User, tweet.Text)
+	if id < 0 {
+		t.Error("Expected id cannot be negative")
 		return false
 	}
 
@@ -178,11 +166,11 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 	firstPublishedTweet := publishedTweets[0]
 	secondPublishedTweet := publishedTweets[1]
 
-	if !isValidTweet(t, firstPublishedTweet, user, text) {
+	if !isValidTweet(t, firstPublishedTweet, 0, user, text) {
 		return
 	}
 
-	if !isValidTweet(t, secondPublishedTweet, user, secondText) {
+	if !isValidTweet(t, secondPublishedTweet, 0, user, secondText) {
 		return
 	}
 }

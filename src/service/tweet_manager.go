@@ -23,6 +23,7 @@ func PublishTweet(t *domain.Tweet) (int, error) {
 	if len(t.Text) > 140 {
 		return 0, fmt.Errorf("text longer that 140 characters")
 	}
+	t.Id = len(tweets) - 1
 	tweets = append(tweets, t)
 	return len(tweets) - 1, nil
 }
