@@ -7,9 +7,13 @@ import (
 )
 
 var tweets [](*domain.Tweet)
+var lastUser string
+var lastCount int
 
 func InitializeService() {
 	// initialize empty slice
+	lastUser = ""
+	lastCount = 0
 	tweets = make([](*domain.Tweet), 0)
 }
 
@@ -22,6 +26,9 @@ func PublishTweet(t *domain.Tweet) (int, error) {
 	}
 	if len(t.Text) > 140 {
 		return 0, fmt.Errorf("text longer that 140 characters")
+	}
+	if t.User == lastUser {
+		lastCount++
 	}
 	t.Id = len(tweets) - 1
 	tweets = append(tweets, t)
@@ -50,4 +57,17 @@ func GetTweet() *domain.Tweet {
 		return nil
 	}
 	return tweets[len(tweets)-1]
+}
+
+func CountTweetsByUser(user string) int {
+	if lastUser == user {
+		return lastCount
+	}
+	count := 0
+	for _, tweet := range GetTweets() {
+		if tweet.User == user {
+			count++
+		}
+	}
+	return count
 }
