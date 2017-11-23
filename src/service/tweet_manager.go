@@ -7,6 +7,7 @@ import (
 )
 
 var tweets map[string][]*domain.Tweet
+var follows map[string][]string
 var lastFreeId int
 var lastAddedTweet *domain.Tweet
 
@@ -14,6 +15,7 @@ func InitializeService() {
 	// initialize empty slice
 	lastFreeId = 0
 	tweets = make(map[string][]*domain.Tweet)
+	follows = make(map[string][]string)
 	lastAddedTweet = nil
 }
 
@@ -76,9 +78,20 @@ func GetTweetsByUser(user string) []*domain.Tweet {
 }
 
 func Follow(user string, toFollow string) error {
+	_, toFollowDefined := tweets[toFollow]
+	if !toFollowDefined {
+		return fmt.Errorf("user %d has not tweeted yet...", toFollow)
+	}
+
+	follows[user] = append(follows[user], toFollow)
 	return nil
 }
 
 func Timeline(user string) []*domain.Tweet {
-	return nil
+	userFollows := follows[user]
+	timeline := make([]*domain.Tweet, 0)
+	for _, follow := range userFollows {
+		timeline = append(timeline, GetTweetsByUser(follow)...)
+	}
+	return timeline
 }
