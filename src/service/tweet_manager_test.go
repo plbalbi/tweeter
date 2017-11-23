@@ -7,6 +7,44 @@ import (
 	"github.com/tweeter/src/service"
 )
 
+// Auxiliar functions
+
+func isValidTweetWithId(t *testing.T, tweet *domain.Tweet, id int, user, text string) bool {
+
+	if tweet.User != user && tweet.Text != text {
+		t.Errorf("Expected tweet is %s: %s \nbut is %s: %s",
+			user, text, tweet.User, tweet.Text)
+		return false
+	}
+
+	if tweet.Date == nil {
+		t.Error("Expected date can't be nil")
+		return false
+	}
+
+	return true
+
+}
+
+func isValidTweet(t *testing.T, tweet *domain.Tweet, user, text string) bool {
+
+	if tweet.User != user && tweet.Text != text {
+		t.Errorf("Expected tweet is %s: %s \nbut is %s: %s",
+			user, text, tweet.User, tweet.Text)
+		return false
+	}
+
+	if tweet.Date == nil {
+		t.Error("Expected date can't be nil")
+		return false
+	}
+
+	return true
+
+}
+
+// --------------- TESTS ---------------
+
 func TestPublishedTweetIsSaved(t *testing.T) {
 
 	// init
@@ -70,7 +108,7 @@ func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 
 	var err error
 	service.InitializeService()
-	err = service.PublishTweet(tweet)
+	_, err = service.PublishTweet(tweet)
 
 	if err != nil && err.Error() != "user is required" {
 		t.Error("Expected error is user required")
@@ -85,7 +123,7 @@ func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 
 	var err error
 	service.InitializeService()
-	err = service.PublishTweet(tweet)
+	_, err = service.PublishTweet(tweet)
 
 	if err != nil && err.Error() != "text is required" {
 		t.Error("Expected error is user required")
@@ -100,7 +138,7 @@ func TestTweetTooLongIsNotPublished(t *testing.T) {
 
 	var err error
 	service.InitializeService()
-	err = service.PublishTweet(tweet)
+	_, err = service.PublishTweet(tweet)
 
 	if err == nil {
 		t.Error("error expected")
@@ -147,22 +185,26 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 	if !isValidTweet(t, secondPublishedTweet, user, secondText) {
 		return
 	}
-
 }
 
-func isValidTweet(t *testing.T, tweet *domain.Tweet, user, text string) bool {
+func TestCanRetrieveTweetById(t *testing.T) {
 
-	if tweet.User != user && tweet.Text != text {
-		t.Errorf("Expected tweet is %s: %s \nbut is %s: %s",
-			user, text, tweet.User, tweet.Text)
-		return false
-	}
+	// Initialization
+	service.InitializeService()
 
-	if tweet.Date == nil {
-		t.Error("Expected date can't be nil")
-		return false
-	}
+	var tweet *domain.Tweet
+	var id int
 
-	return true
+	user := "grupoesfera"
+	text := "This is my first tweet"
 
+	tweet = domain.NewTweet(user, text)
+
+	// Operation
+	id, _ = service.PublishTweet(tweet)
+
+	// Validation
+	publishedTweet := service.GetTweetById(id)
+
+	isValidTweetWithId(t, publishedTweet, id, user, text)
 }

@@ -13,19 +13,18 @@ func InitializeService() {
 	tweets = make([](*domain.Tweet), 0)
 }
 
-func PublishTweet(t *domain.Tweet) error {
+func PublishTweet(t *domain.Tweet) (int, error) {
 	if t.User == "" {
-		return fmt.Errorf("user is required")
+		return 0, fmt.Errorf("user is required")
 	}
 	if t.Text == "" {
-		return fmt.Errorf("text is required")
+		return 0, fmt.Errorf("text is required")
 	}
 	if len(t.Text) > 140 {
-		return fmt.Errorf("text longer that 140 characters")
+		return 0, fmt.Errorf("text longer that 140 characters")
 	}
-
 	tweets = append(tweets, t)
-	return nil
+	return len(tweets) - 1, nil
 }
 
 func CleanTweet() {
@@ -39,6 +38,10 @@ func GetTweets() [](*domain.Tweet) {
 
 func NoTweets() bool {
 	return len(tweets) == 0
+}
+
+func GetTweetById(id int) *domain.Tweet {
+	return tweets[id]
 }
 
 func GetTweet() *domain.Tweet {
