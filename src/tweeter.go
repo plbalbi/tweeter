@@ -174,5 +174,59 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "sendDirectMessage",
+		Help: "sends a direct message",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Sending message to user\n")
+			from := GetInputFromUser(c, "From: ")
+			to := GetInputFromUser(c, "To: ")
+			text := GetInputFromUser(c, "Body: ")
+			message := domain.NewMessage(from, text)
+			err := tweetManager.SendDirectMessage(message, to)
+			if err == nil {
+				c.Print("Message sent\n")
+			} else {
+				c.Print("Error sending message\n")
+			}
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "getAllMessages",
+		Help: "get all inbox messagess",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			user := GetInputFromUser(c, "user to get inbox from: ")
+			inbox := tweetManager.GetAllDirectMessages(user)
+			PreetyPrintInbox(c, inbox)
+			return
+		},
+	})
+
 	shell.Run()
+}
+
+func GetInputFromUser(c *ishell.Context, message string) string {
+	c.Print(message)
+	return c.ReadLine()
+}
+
+func PreetyPrintInbox(c *ishell.Context, inbox []*domain.Message) {
+	BOLD := "\033[1m"
+	END := "\033[0m"
+	for index, message := range inbox {
+		var readState string
+		if message.Read {
+			readState = "READ"
+		} else {
+			readState = "UNREAD"
+		}
+		c.Println("----------------------------------------")
+		c.Printf("%sMessage %d%s ------------------------ %s%s%s\n", BOLD, index, END, BOLD, readState, END)
+		c.Printf("From: %s\nText: %s\n", message.From, message.Text)
+		c.Println("----------------------------------------")
+	}
 }
