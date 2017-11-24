@@ -9,12 +9,14 @@ import (
 
 type followsMap map[string][]string
 type wordCount map[string]int
+type userInboxes map[string][]*domain.Message
 type tweetsMap map[string][]*domain.Tweet
 
 type TweetManager struct {
 	tweets         tweetsMap
 	follows        followsMap
 	hashtagCount   wordCount
+	inboxes        userInboxes
 	lastFreeId     int
 	lastAddedTweet *domain.Tweet
 }
@@ -24,6 +26,7 @@ func NewTweetManager() *TweetManager {
 		tweets:         make(tweetsMap),
 		follows:        make(followsMap),
 		hashtagCount:   make(wordCount),
+		inboxes:        make(userInboxes),
 		lastFreeId:     0,
 		lastAddedTweet: nil,
 	}
@@ -148,3 +151,7 @@ func (tweetManager *TweetManager) GetTrendingTopics() []string {
 	}
 	return trendingTopics
 }
+
+func (tweetManager *TweetManager) GetAllDirectMessages(user string) []*domain.Message    {}
+func (tweetManager *TweetManager) GetUnreadDirectMessages(user string) []*domain.Message {}
+func (tweetManager *TweetManager) ReadDirectMessage() []*domain.Message                  {}

@@ -288,3 +288,44 @@ func TestTrendingTopicOk(t *testing.T) {
 		return
 	}
 }
+
+func TestSendDirectMessageAndGetAllOfThem(t *testing.T) {
+	msg1 := domain.NewMessage("perro2", "perro1", "hola")
+	msg2 := domain.NewMessage("perro3", "perro1", "hola")
+	msg3 := domain.NewMessage("perro4", "perro1", "hola")
+	tweetManager.SendDirectMessage(msg1)
+	tweetManager.SendDirectMessage(msg2)
+	tweetManager.SendDirectMessage(msg3)
+
+	allRecievedMessages := tweetManager.GetAllDirectMessages("perro1")
+
+	if len(allRecievedMessages) != 3 {
+		t.Error("Unexpected number of direct messages")
+		return
+	}
+
+}
+func TestGetUnreadMessagesAndRead(t *testing.T) {
+	msg1 := domain.NewMessage("perro2", "perro1", "hola")
+	msg2 := domain.NewMessage("perro3", "perro1", "hola")
+	msg3 := domain.NewMessage("perro4", "perro1", "hola")
+	tweetManager.SendDirectMessage(msg1)
+	tweetManager.SendDirectMessage(msg2)
+	tweetManager.SendDirectMessage(msg3)
+
+	allUnreadMessages := tweetManager.GetUnreadDirectMessages("perro1")
+
+	if len(allRecievedMessages) != 3 {
+		t.Error("Unexpected number of unread direct messages")
+		return
+	}
+
+	tweetManager.ReadDirectMessage(msg1)
+	tweetManager.ReadDirectMessage(msg2)
+
+	if len(allRecievedMessages) != 1 {
+		t.Error("Unexpected number of unread direct messages AFTER READ")
+		return
+	}
+
+}
