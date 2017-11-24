@@ -194,5 +194,12 @@ func (tweetManager *TweetManager) SendDirectMessage(message *domain.Message, des
 }
 
 func (tweetManager *TweetManager) Retweet(originalTweet *domain.Tweet, retweeter string) error {
-	return nil
+	// Check if tweet is nil
+	if originalTweet == nil {
+		return fmt.Errorf("cannot retweet nil tweet")
+	}
+	retweet := domain.NewRetweet(originalTweet, retweeter)
+	retweetId, err := tweetManager.PublishTweet(retweet)
+	retweet.Id = retweetId
+	return err
 }
