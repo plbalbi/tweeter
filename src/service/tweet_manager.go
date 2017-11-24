@@ -162,6 +162,6 @@ func (tweetManager *TweetManager) ReadDirectMessage(message *domain.Message) err
 	return nil
 }
 
-func (tweetManager *TweetManager) SendDirectMessage(message *domain.Message) error {
+func (tweetManager *TweetManager) SendDirectMessage(message *domain.Message, destinatary string) error {
 	return nil
 }

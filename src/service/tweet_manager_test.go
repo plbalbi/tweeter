@@ -290,12 +290,12 @@ func TestTrendingTopicOk(t *testing.T) {
 }
 
 func TestSendDirectMessageAndGetAllOfThem(t *testing.T) {
-	msg1 := domain.NewMessage("perro2", "perro1", "hola")
-	msg2 := domain.NewMessage("perro3", "perro1", "hola")
-	msg3 := domain.NewMessage("perro4", "perro1", "hola")
-	tweetManager.SendDirectMessage(msg1)
-	tweetManager.SendDirectMessage(msg2)
-	tweetManager.SendDirectMessage(msg3)
+	msg1 := domain.NewMessage("perro2", "hola")
+	msg2 := domain.NewMessage("perro3", "hola")
+	msg3 := domain.NewMessage("perro4", "hola")
+	tweetManager.SendDirectMessage(msg1, "perro1")
+	tweetManager.SendDirectMessage(msg2, "perro1")
+	tweetManager.SendDirectMessage(msg3, "perro1")
 
 	allRecievedMessages := tweetManager.GetAllDirectMessages("perro1")
 
@@ -306,12 +306,12 @@ func TestSendDirectMessageAndGetAllOfThem(t *testing.T) {
 
 }
 func TestGetUnreadMessagesAndRead(t *testing.T) {
-	msg1 := domain.NewMessage("perro2", "perro1", "hola")
-	msg2 := domain.NewMessage("perro3", "perro1", "hola")
-	msg3 := domain.NewMessage("perro4", "perro1", "hola")
-	tweetManager.SendDirectMessage(msg1)
-	tweetManager.SendDirectMessage(msg2)
-	tweetManager.SendDirectMessage(msg3)
+	msg1 := domain.NewMessage("perro2", "hola")
+	msg2 := domain.NewMessage("perro3", "hola")
+	msg3 := domain.NewMessage("perro4", "hola")
+	tweetManager.SendDirectMessage(msg1, "perro1")
+	tweetManager.SendDirectMessage(msg2, "perro1")
+	tweetManager.SendDirectMessage(msg3, "perro1")
 
 	allUnreadMessages := tweetManager.GetUnreadDirectMessages("perro1")
 
