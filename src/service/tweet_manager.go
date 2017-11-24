@@ -6,20 +6,28 @@ import (
 	"github.com/tweeter/src/domain"
 )
 
-var tweets map[string][]*domain.Tweet
-var follows map[string][]string
-var lastFreeId int
-var lastAddedTweet *domain.Tweet
+type followsMap map[string][]string
+type tweetsMap map[string][]*domain.Tweet
 
-func InitializeService() {
-	// initialize empty slice
-	lastFreeId = 0
-	tweets = make(map[string][]*domain.Tweet)
-	follows = make(map[string][]string)
-	lastAddedTweet = nil
+type TweetManager struct {
+	tweets         tweetsMap
+	follows        followsMap
+	lastFreeId     int
+	lastAddedTweet *domain.Tweet
 }
 
-func PublishTweet(t *domain.Tweet) (int, error) {
+func NewTweetManager() *TweetManager {
+	var tweetManager TweetManager = TweetManager{
+		tweets:         make(tweetsMap),
+		follows:        make(followsMap),
+		lastFreeId:     0,
+		lastAddedTweet: nil,
+	}
+	// initialize empty slice
+	return &tweetManager
+}
+
+func (tweetManager *TweetManager) PublishTweet(t *domain.Tweet) (int, error) {
 	if t.User == "" {
 		return 0, fmt.Errorf("user is required")
 	}
@@ -29,34 +37,36 @@ func PublishTweet(t *domain.Tweet) (int, error) {
 	if len(t.Text) > 140 {
 		return 0, fmt.Errorf("text longer that 140 characters")
 	}
-	t.Id = lastFreeId
-	lastFreeId++
-	lastAddedTweet = t
-	tweets[t.User] = append(tweets[t.User], t)
+	t.Id = tweetManager.lastFreeId
+	tweetManager.lastFreeId++
+	tweetManager.lastAddedTweet = t
+	tweetManager.tweets[t.User] = append(tweetManager.tweets[t.User], t)
 	return t.Id, nil
 }
 
-func CleanTweets() {
-	tweets = nil
-	InitializeService()
+func (tweetManager *TweetManager) CleanTweets() {
+	tweetManager.tweets = make(tweetsMap)
+	tweetManager.follows = make(followsMap)
+	tweetManager.lastAddedTweet = nil
+	tweetManager.lastFreeId = 0
 }
 
 // solucion medio mala
 // cambiar a iterador o una lista media ensamblada
-func GetTweets() [](*domain.Tweet) {
+func (tweetManager *TweetManager) GetTweets() [](*domain.Tweet) {
 	allTweets := make([]*domain.Tweet, 0)
-	for _, tweets := range tweets {
+	for _, tweets := range tweetManager.tweets {
 		allTweets = append(allTweets, tweets...)
 	}
 	return allTweets
 }
 
-func NoTweets() bool {
-	return len(tweets) == 0
+func (tweetManager *TweetManager) NoTweets() bool {
+	return len(tweetManager.tweets) == 0
 }
 
-func GetTweetById(id int) *domain.Tweet {
-	allTweets := GetTweets()
+func (tweetManager *TweetManager) GetTweetById(id int) *domain.Tweet {
+	allTweets := tweetManager.GetTweets()
 	for _, tweet := range allTweets {
 		if tweet.Id == id {
 			return tweet
@@ -65,33 +75,33 @@ func GetTweetById(id int) *domain.Tweet {
 	return nil
 }
 
-func GetTweet() *domain.Tweet {
-	return lastAddedTweet
+func (tweetManager *TweetManager) GetTweet() *domain.Tweet {
+	return tweetManager.lastAddedTweet
 }
 
-func CountTweetsByUser(user string) int {
-	return len(tweets[user])
+func (tweetManager *TweetManager) CountTweetsByUser(user string) int {
+	return len(tweetManager.tweets[user])
 }
 
-func GetTweetsByUser(user string) []*domain.Tweet {
-	return tweets[user]
+func (tweetManager *TweetManager) GetTweetsByUser(user string) []*domain.Tweet {
+	return tweetManager.tweets[user]
 }
 
-func Follow(user string, toFollow string) error {
-	_, toFollowDefined := tweets[toFollow]
+func (tweetManager *TweetManager) Follow(user string, toFollow string) error {
+	_, toFollowDefined := tweetManager.tweets[toFollow]
 	if !toFollowDefined {
-		return fmt.Errorf("user %d has not tweeted yet...", toFollow)
+		return fmt.Errorf("user to follow not found")
 	}
 
-	follows[user] = append(follows[user], toFollow)
+	tweetManager.follows[user] = append(tweetManager.follows[user], toFollow)
 	return nil
 }
 
-func Timeline(user string) []*domain.Tweet {
-	userFollows := follows[user]
+func (tweetManager *TweetManager) Timeline(user string) []*domain.Tweet {
+	userFollows := tweetManager.follows[user]
 	timeline := make([]*domain.Tweet, 0)
 	for _, follow := range userFollows {
-		timeline = append(timeline, GetTweetsByUser(follow)...)
+		timeline = append(timeline, tweetManager.GetTweetsByUser(follow)...)
 	}
 	return timeline
 }
