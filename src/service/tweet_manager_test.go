@@ -336,5 +336,23 @@ func TestGetUnreadMessagesAndRead(t *testing.T) {
 		t.Error("Unexpected number of unread direct messages AFTER READ")
 		return
 	}
+}
 
+func TestErrorWhenSendingMessage(t *testing.T) {
+	tweetManager = service.NewTweetManager()
+	if tweetManager.GetTweet() != nil {
+		t.Errorf("tweeterManager not beign cleaned")
+	}
+
+	msg1 := domain.NewMessage("gato", "hola")
+	err := tweetManager.SendDirectMessage(msg1, "")
+	if err != nil && err.Error() != "destinatary is required" {
+		t.Errorf("'destinatary required' error expected")
+	}
+	msg1.From = ""
+	err = tweetManager.SendDirectMessage(msg1, "alguien")
+	if err != nil && err.Error() != "sender is required" {
+		t.Errorf("'sender is required' error expected")
+	}
+	return
 }
