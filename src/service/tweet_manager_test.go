@@ -7,6 +7,13 @@ import (
 	"github.com/tweeter/src/service"
 )
 
+var tweetManager *service.TweetManager
+
+func TestMain(m *testing.M) {
+	tweetManager = service.NewTweetManager()
+	m.Run()
+}
+
 func TestPublishedTweetIsSaved(t *testing.T) {
 
 	// Initialization
@@ -258,4 +265,26 @@ func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user, text string) 
 
 	return true
 
+}
+
+func TestTrendingTopicOk(t *testing.T) {
+	tweet1 := domain.NewTweet("perro", "esto es re loco #dogchow #eukanuba #fritolin")
+	tweet2 := domain.NewTweet("perro2", "esto es re loco #dogchow #eukanuba")
+	tweetManager.PublishTweet(tweet1)
+	tweetManager.PublishTweet(tweet2)
+
+	trendingTopics := tweetManager.GetTrendingTopics()
+
+	if len(trendingTopics) != 2 {
+		t.Error("trendingTopic count expected to be 2")
+		return
+	}
+	if trendingTopics[0] != "#dogchow" && trendingTopics[1] != "#eukanuba" {
+		t.Error("bad trending topic")
+		return
+	}
+	if trendingTopics[0] != "#dogchow" && trendingTopics[1] != "#eukanuba" {
+		t.Error("bad trending topic")
+		return
+	}
 }

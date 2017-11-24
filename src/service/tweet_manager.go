@@ -2,16 +2,19 @@ package service
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/tweeter/src/domain"
 )
 
 type followsMap map[string][]string
+type wordCount map[string]int
 type tweetsMap map[string][]*domain.Tweet
 
 type TweetManager struct {
 	tweets         tweetsMap
 	follows        followsMap
+	hashtagCount   wordCount
 	lastFreeId     int
 	lastAddedTweet *domain.Tweet
 }
@@ -20,6 +23,7 @@ func NewTweetManager() *TweetManager {
 	var tweetManager TweetManager = TweetManager{
 		tweets:         make(tweetsMap),
 		follows:        make(followsMap),
+		hashtagCount:   make(wordCount),
 		lastFreeId:     0,
 		lastAddedTweet: nil,
 	}
@@ -28,6 +32,7 @@ func NewTweetManager() *TweetManager {
 }
 
 func (tweetManager *TweetManager) PublishTweet(t *domain.Tweet) (int, error) {
+	// Error checking
 	if t.User == "" {
 		return 0, fmt.Errorf("user is required")
 	}
@@ -37,16 +42,27 @@ func (tweetManager *TweetManager) PublishTweet(t *domain.Tweet) (int, error) {
 	if len(t.Text) > 140 {
 		return 0, fmt.Errorf("text longer that 140 characters")
 	}
+	// Tweet index tracking
 	t.Id = tweetManager.lastFreeId
 	tweetManager.lastFreeId++
 	tweetManager.lastAddedTweet = t
+	// Adding the tweet
 	tweetManager.tweets[t.User] = append(tweetManager.tweets[t.User], t)
+	// Updating hashtag count
+	for _, word := range strings.Fields(t.Text) {
+		if _, wordDefined := tweetManager.hashtagCount[word]; !wordDefined {
+			tweetManager.hashtagCount[word] = 1
+		} else {
+			tweetManager.hashtagCount[word]++
+		}
+	}
 	return t.Id, nil
 }
 
 func (tweetManager *TweetManager) CleanTweets() {
 	tweetManager.tweets = make(tweetsMap)
 	tweetManager.follows = make(followsMap)
+	tweetManager.hashtagCount = make(wordCount)
 	tweetManager.lastAddedTweet = nil
 	tweetManager.lastFreeId = 0
 }
@@ -104,4 +120,31 @@ func (tweetManager *TweetManager) Timeline(user string) []*domain.Tweet {
 		timeline = append(timeline, tweetManager.GetTweetsByUser(follow)...)
 	}
 	return timeline
+}
+
+func (tweetManager *TweetManager) GetTrendingTopics() []string {
+	trendingTopics := make([]string, 2)
+	trendingTopics[0] = "undefined"
+	trendingTopics[1] = "undefined"
+	trendingTopicsCount := make([]int, 2)
+	trendingTopicsCount[0] = -1
+	trendingTopicsCount[1] = -1
+	// Como se que trendingTopicsCount[0] siempre sera el max, si encuentro uno mayor, lo guardo ahi
+	// y shifteo el tTC[0] a tTC[1]
+	for word, wordCount := range tweetManager.hashtagCount {
+		// Check if it's a hashtag
+		if word[0] != '#' {
+			continue
+		}
+		// La palabra es el nuevo máximo?
+		if wordCount > trendingTopicsCount[0] {
+			// Muevo tTC[0] como el segundo mas frecuente
+			trendingTopics[1] = trendingTopics[0]
+			trendingTopicsCount[1] = trendingTopicsCount[0]
+			// Actualizo el maximo actual
+			trendingTopics[0] = word
+			trendingTopicsCount[0] = wordCount
+		}
+	}
+	return trendingTopics
 }
