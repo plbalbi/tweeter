@@ -70,9 +70,7 @@ func main() {
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
 			tweets := tweetManager.GetTweets()
-			for _, tweet := range tweets {
-				c.Println("Tweet #" + strconv.Itoa(tweet.Id) + " | User: " + tweet.User + "\nText: " + tweet.Text)
-			}
+			PreetyPrintTweets(c, tweets)
 			return
 		},
 	})
@@ -275,5 +273,22 @@ func PreetyPrintInbox(c *ishell.Context, inbox []*domain.Message) {
 		c.Printf("%sMessage %d%s ------------------------ %s%s%s\n", BOLD, index, END, BOLD, readState, END)
 		c.Printf("From: %s\nText: %s\n", message.From, message.Text)
 		c.Println("----------------------------------------")
+	}
+}
+
+func PreetyPrintTweets(c *ishell.Context, tweets []*domain.Tweet) {
+	BOLD := "\033[1m"
+	END := "\033[0m"
+	for _, tweet := range tweets {
+		if tweet.IsRetweet {
+			c.Printf("------------------------------------------------------ #%d\n", tweet.Id)
+			c.Printf("%s%s%s retweeted '%s' (by %s), \nat %s on %s\n", BOLD, tweet.User, END, tweet.Text, tweet.RetweetedBy, getPreetyHour(tweet.Date), getPreetyDate(tweet.Date))
+			c.Println("------------------------------------------------------")
+		} else {
+			c.Printf("------------------------------------------------------ #%d\n", tweet.Id)
+			c.Printf("%s%s%s tweeted '%s', \nat %s on %s\n", BOLD, tweet.User, END, tweet.Text, getPreetyHour(tweet.Date), getPreetyDate(tweet.Date))
+			c.Println("------------------------------------------------------")
+		}
+
 	}
 }
