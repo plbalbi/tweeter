@@ -22,7 +22,7 @@ func main() {
 	shell := ishell.New()
 	shell.SetPrompt("Tweeter >> ")
 	shell.Print("Type 'help' to know commands\n")
-	service.InitializeService()
+	tweetManager := service.NewTweetManager()
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "publishTweet",
@@ -33,7 +33,7 @@ func main() {
 			user := c.ReadLine()
 			c.Print("Write you tweet: ")
 			tweet := c.ReadLine()
-			publishedTweetId, err := service.PublishTweet(domain.NewTweet(user, tweet))
+			publishedTweetId, err := tweetManager.PublishTweet(domain.NewTweet(user, tweet))
 			if err != nil {
 				if err.Error() == "user is required" {
 					c.Print("user is required to tweet")
@@ -58,7 +58,7 @@ func main() {
 		Help: "Shows a tweet",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			tweet := service.GetTweet()
+			tweet := tweetManager.GetTweet()
 			c.Println(tweet)
 			return
 		},
@@ -69,7 +69,7 @@ func main() {
 		Help: "Show all available tweets",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			tweets := service.GetTweets()
+			tweets := tweetManager.GetTweets()
 			for index, tweet := range tweets {
 				c.Println("Tweet #" + strconv.Itoa(index) + " | User: " + tweet.User + "\nText: " + tweet.Text)
 			}
@@ -85,7 +85,7 @@ func main() {
 			c.Print("Which tweet should i bring? [id] : ")
 			stringId := c.ReadLine()
 			id, _ := strconv.Atoi(stringId)
-			fmt.Println(service.GetTweetById(id))
+			fmt.Println(tweetManager.GetTweetById(id))
 			return
 		},
 	})
@@ -95,7 +95,7 @@ func main() {
 		Help: "Clean all tweets",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			service.CleanTweets()
+			tweetManager.CleanTweets()
 			c.Print("All tweets cleaned")
 			return
 		},
@@ -108,7 +108,7 @@ func main() {
 			defer c.ShowPrompt(true)
 			c.Print("User to count tweets from: ")
 			userToCount := c.ReadLine()
-			count := service.CountTweetsByUser(userToCount)
+			count := tweetManager.CountTweetsByUser(userToCount)
 			c.Printf("%s has tweeted %d times\n", userToCount, count)
 			return
 		},
@@ -121,7 +121,7 @@ func main() {
 			defer c.ShowPrompt(true)
 			c.Print("User to find tweets from: ")
 			userToFindTweetsFrom := c.ReadLine()
-			userTweets := service.GetTweetsByUser(userToFindTweetsFrom)
+			userTweets := tweetManager.GetTweetsByUser(userToFindTweetsFrom)
 			c.Print(userTweets)
 			return
 		},
@@ -136,7 +136,7 @@ func main() {
 			whoAmI := c.ReadLine()
 			c.Print("who you wanna follow: ")
 			wannaFollow := c.ReadLine()
-			err := service.Follow(whoAmI, wannaFollow)
+			err := tweetManager.Follow(whoAmI, wannaFollow)
 			if err != nil && err.Error() == "user to follow not found" {
 				c.Printf("user %s has not tweeted yet...", wannaFollow)
 			}
@@ -152,7 +152,7 @@ func main() {
 			defer c.ShowPrompt(true)
 			c.Print("whose timeline: ")
 			user := c.ReadLine()
-			timeline := service.Timeline(user)
+			timeline := tweetManager.Timeline(user)
 			c.Printf("\tTimeline from %s\n", user)
 			c.Print("---------------------------------\n")
 			for _, tweet := range timeline {
