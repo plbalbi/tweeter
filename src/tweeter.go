@@ -163,5 +163,16 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "getTrendingTopic",
+		Help: "gets current trending topics",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			trendingTopics := tweetManager.GetTrendingTopics()
+			c.Printf("TT1: \t%s\nTT2: \t%s\n", trendingTopics[0], trendingTopics[1])
+			return
+		},
+	})
+
 	shell.Run()
 }
