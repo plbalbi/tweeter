@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/tweeter/src/domain"
@@ -268,6 +269,7 @@ func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user, text string) 
 }
 
 func TestTrendingTopicOk(t *testing.T) {
+	tweetManager = service.NewTweetManager()
 	tweet1 := domain.NewTweet("perro", "esto es re loco #dogchow #eukanuba #fritolin")
 	tweet2 := domain.NewTweet("perro2", "esto es re loco #dogchow #eukanuba")
 	tweetManager.PublishTweet(tweet1)
@@ -290,6 +292,7 @@ func TestTrendingTopicOk(t *testing.T) {
 }
 
 func TestSendDirectMessageAndGetAllOfThem(t *testing.T) {
+	tweetManager = service.NewTweetManager()
 	msg1 := domain.NewMessage("perro2", "hola")
 	msg2 := domain.NewMessage("perro3", "hola")
 	msg3 := domain.NewMessage("perro4", "hola")
@@ -306,6 +309,13 @@ func TestSendDirectMessageAndGetAllOfThem(t *testing.T) {
 
 }
 func TestGetUnreadMessagesAndRead(t *testing.T) {
+	tweetManager = service.NewTweetManager()
+	if tweetManager.GetTweet() != nil {
+		t.Errorf("tweeterManager not beign cleaned")
+	}
+	fmt.Printf("unread message previous to last test exec: %d\n",
+		len(tweetManager.GetUnreadDirectMessages("perro1")))
+
 	msg1 := domain.NewMessage("perro2", "hola")
 	msg2 := domain.NewMessage("perro3", "hola")
 	msg3 := domain.NewMessage("perro4", "hola")

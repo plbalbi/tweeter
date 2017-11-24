@@ -9,6 +9,10 @@ import (
 
 type followsMap map[string][]string
 type wordCount map[string]int
+
+// userInboxes tiene
+// key: 		user / destinatary
+// definition: 	*message
 type userInboxes map[string][]*domain.Message
 type tweetsMap map[string][]*domain.Tweet
 
@@ -153,15 +157,39 @@ func (tweetManager *TweetManager) GetTrendingTopics() []string {
 }
 
 func (tweetManager *TweetManager) GetAllDirectMessages(user string) []*domain.Message {
-	return nil
+	return tweetManager.inboxes[user]
 }
 func (tweetManager *TweetManager) GetUnreadDirectMessages(user string) []*domain.Message {
-	return nil
+	unreadMessages := make([]*domain.Message, 0)
+
+	for _, message := range tweetManager.inboxes[user] {
+		if !message.Read {
+			unreadMessages = append(unreadMessages, message)
+		}
+	}
+	fmt.Printf("unread messages found %d\n", len(unreadMessages))
+	return unreadMessages
 }
 func (tweetManager *TweetManager) ReadDirectMessage(message *domain.Message) error {
+	if message == nil {
+		err := fmt.Errorf("message is nil")
+		return err
+	}
+	message.Read = true
 	return nil
 }
 
 func (tweetManager *TweetManager) SendDirectMessage(message *domain.Message, destinatary string) error {
+	// Checking message OK
+	if destinatary == "" {
+		err := fmt.Errorf("destinatary is required")
+		return err
+	}
+	if message.From == "" {
+		err := fmt.Errorf("sender is required")
+		return err
+	}
+	// Sending message
+	tweetManager.inboxes[destinatary] = append(tweetManager.inboxes[destinatary], message)
 	return nil
 }
