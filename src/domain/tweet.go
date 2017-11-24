@@ -29,3 +29,7 @@ func NewRetweet(originalTweet *Tweet, retweeter string) *Tweet {
 func (tweet *Tweet) PrintableTweet() string {
 	return fmt.Sprintf("@%s: %s", tweet.User, tweet.Text)
 }
+
+func (tweet *Tweet) String() string {
+	return tweet.PrintableTweet()
+}
