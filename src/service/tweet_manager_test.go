@@ -378,3 +378,14 @@ func TestRetweetNilTweet(t *testing.T) {
 	}
 	return
 }
+
+func TestCanGetPrintableTweet(t *testing.T) {
+	tweet := domain.NewTweet("grupoesfera", "This is my tweet")
+
+	text := tweet.PrintableTweet()
+
+	expectedText := "@grupoesfera: This is my tweet"
+	if text != expectedText {
+		t.Errorf("The expected text is: %s \nBut I got this: %s", expectedText, text)
+	}
+}

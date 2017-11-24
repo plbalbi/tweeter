@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Tweet struct {
 	User        string
@@ -21,4 +24,8 @@ func NewRetweet(originalTweet *Tweet, retweeter string) *Tweet {
 	actualTime := time.Now()
 	tweet := Tweet{User: originalTweet.User, Text: originalTweet.Text, Date: &actualTime, IsRetweet: true, RetweetedBy: retweeter}
 	return &tweet
+}
+
+func (tweet *Tweet) PrintableTweet() string {
+	return fmt.Sprintf("@%s: %s", tweet.User, tweet.Text)
 }
