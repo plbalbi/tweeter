@@ -70,8 +70,8 @@ func main() {
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
 			tweets := tweetManager.GetTweets()
-			for index, tweet := range tweets {
-				c.Println("Tweet #" + strconv.Itoa(index) + " | User: " + tweet.User + "\nText: " + tweet.Text)
+			for _, tweet := range tweets {
+				c.Println("Tweet #" + strconv.Itoa(tweet.Id) + " | User: " + tweet.User + "\nText: " + tweet.Text)
 			}
 			return
 		},
@@ -230,6 +230,25 @@ func main() {
 			messageToReadToInt, _ := strconv.Atoi(messageToRead)
 			tweetManager.ReadDirectMessage(inbox[messageToReadToInt])
 			c.Println("Message read")
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "retweet",
+		Help: "retweet something",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			user := GetInputFromUser(c, "Who am i: ")
+			idToRetweet := GetInputFromUser(c, "id to retweet: ")
+			index, _ := strconv.Atoi(idToRetweet)
+			tweet := tweetManager.GetTweetById(index)
+			err := tweetManager.Retweet(tweet, user)
+			if err != nil {
+				c.Println("hubo un error al retweetear")
+				return
+			}
+			c.Println("Retweet ok")
 			return
 		},
 	})
