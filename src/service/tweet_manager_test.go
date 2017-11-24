@@ -315,7 +315,7 @@ func TestGetUnreadMessagesAndRead(t *testing.T) {
 
 	allUnreadMessages := tweetManager.GetUnreadDirectMessages("perro1")
 
-	if len(allRecievedMessages) != 3 {
+	if len(allUnreadMessages) != 3 {
 		t.Error("Unexpected number of unread direct messages")
 		return
 	}
@@ -323,7 +323,9 @@ func TestGetUnreadMessagesAndRead(t *testing.T) {
 	tweetManager.ReadDirectMessage(msg1)
 	tweetManager.ReadDirectMessage(msg2)
 
-	if len(allRecievedMessages) != 1 {
+	allUnreadMessages = tweetManager.GetUnreadDirectMessages("perro1")
+
+	if len(allUnreadMessages) != 1 {
 		t.Error("Unexpected number of unread direct messages AFTER READ")
 		return
 	}

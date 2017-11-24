@@ -152,6 +152,16 @@ func (tweetManager *TweetManager) GetTrendingTopics() []string {
 	return trendingTopics
 }
 
-func (tweetManager *TweetManager) GetAllDirectMessages(user string) []*domain.Message    {}
-func (tweetManager *TweetManager) GetUnreadDirectMessages(user string) []*domain.Message {}
-func (tweetManager *TweetManager) ReadDirectMessage() []*domain.Message                  {}
+func (tweetManager *TweetManager) GetAllDirectMessages(user string) []*domain.Message {
+	return nil
+}
+func (tweetManager *TweetManager) GetUnreadDirectMessages(user string) []*domain.Message {
+	return nil
+}
+func (tweetManager *TweetManager) ReadDirectMessage(message *domain.Message) error {
+	return nil
+}
+
+func (tweetManager *TweetManager) SendDirectMessage(message *domain.Message) error {
+	return nil
+}
