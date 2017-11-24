@@ -206,6 +206,34 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "getUnreadMessages",
+		Help: "get all unread inbox messagess",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			user := GetInputFromUser(c, "user to get inbox from: ")
+			inbox := tweetManager.GetUnreadDirectMessages(user)
+			PreetyPrintInbox(c, inbox)
+			return
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "readMessage",
+		Help: "select and read a message",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			user := GetInputFromUser(c, "user to get inbox from: ")
+			inbox := tweetManager.GetAllDirectMessages(user)
+			PreetyPrintInbox(c, inbox)
+			messageToRead := GetInputFromUser(c, "select a message to read, and gimme index: ")
+			messageToReadToInt, _ := strconv.Atoi(messageToRead)
+			tweetManager.ReadDirectMessage(inbox[messageToReadToInt])
+			c.Println("Message read")
+			return
+		},
+	})
+
 	shell.Run()
 }
 
