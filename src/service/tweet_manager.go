@@ -167,7 +167,6 @@ func (tweetManager *TweetManager) GetUnreadDirectMessages(user string) []*domain
 			unreadMessages = append(unreadMessages, message)
 		}
 	}
-	fmt.Printf("unread messages found %d\n", len(unreadMessages))
 	return unreadMessages
 }
 func (tweetManager *TweetManager) ReadDirectMessage(message *domain.Message) error {

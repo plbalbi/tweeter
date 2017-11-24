@@ -1,7 +1,6 @@
 package service_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/tweeter/src/domain"
@@ -313,8 +312,6 @@ func TestGetUnreadMessagesAndRead(t *testing.T) {
 	if tweetManager.GetTweet() != nil {
 		t.Errorf("tweeterManager not beign cleaned")
 	}
-	fmt.Printf("unread message previous to last test exec: %d\n",
-		len(tweetManager.GetUnreadDirectMessages("perro1")))
 
 	msg1 := domain.NewMessage("perro2", "hola")
 	msg2 := domain.NewMessage("perro3", "hola")
