@@ -192,3 +192,7 @@ func (tweetManager *TweetManager) SendDirectMessage(message *domain.Message, des
 	tweetManager.inboxes[destinatary] = append(tweetManager.inboxes[destinatary], message)
 	return nil
 }
+
+func (tweetManager *TweetManager) Retweet(originalTweet *domain.Tweet, retweeter string) error {
+	return nil
+}

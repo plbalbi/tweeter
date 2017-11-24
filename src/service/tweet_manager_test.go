@@ -356,3 +356,25 @@ func TestErrorWhenSendingMessage(t *testing.T) {
 	}
 	return
 }
+
+func TestRetweetOk(t *testing.T) {
+	tweetManager = service.NewTweetManager()
+	tweet := domain.NewTweet("perro", "esto es re loco #dogchow #eukanuba #fritolin")
+	tweetManager.Retweet(tweet, "gato")
+	if tweetManager.GetTweet().User != tweet.User ||
+		tweetManager.GetTweet().Text != tweet.Text ||
+		tweetManager.GetTweet().Date == tweet.Date {
+		t.Error("bad retweet generated")
+	}
+	return
+}
+
+func TestRetweetNilTweet(t *testing.T) {
+	tweetManager = service.NewTweetManager()
+	var tweet *domain.Tweet = nil
+	err := tweetManager.Retweet(tweet, "gato")
+	if err != nil && err.Error() != "cannot retweet nil tweet" {
+		t.Error("expected error 'cannot retweet nil tweet'")
+	}
+	return
+}
