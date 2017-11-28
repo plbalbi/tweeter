@@ -37,6 +37,7 @@ func NewTweetManager() *TweetManager {
 		follows:        make(followsMap),
 		hashtagCount:   make(wordCount),
 		inboxes:        make(userInboxes),
+		plugins:        make(pluginCollection, 0),
 		lastFreeId:     0,
 		lastAddedTweet: nil,
 	}
@@ -219,4 +220,8 @@ func (tweetManager *TweetManager) Retweet(originalTweet domain.Tweet, retweeter 
 	}
 	retweet.SetId(retweetId)
 	return nil
+}
+
+func (tweetManager *TweetManager) AddPlugin(plugin TweeterPlugin) {
+	tweetManager.plugins = append(tweetManager.plugins, plugin)
 }
