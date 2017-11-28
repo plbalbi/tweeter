@@ -8,10 +8,11 @@ import (
 type Tweet interface {
 	GetUser() string
 	GetText() string
+	GetDate() *time.Time
 	GetId() int
 	IsRetweet() bool
 	RetweetedByWhom() string
-	SetId(id int) int
+	SetId(id int)
 	PrintableTweet() string
 }
 
@@ -20,7 +21,7 @@ type TextTweet struct {
 	Text        string
 	Date        *time.Time
 	Id          int
-	IsRetweet   bool
+	IsRt        bool
 	RetweetedBy string
 }
 
@@ -37,10 +38,10 @@ type QuoteTweet struct {
 func NewTextTweet(user, text string) *TextTweet {
 	actualTime := time.Now()
 	tweet := TextTweet{
-		User:      user,
-		Text:      text,
-		Date:      &actualTime,
-		IsRetweet: false,
+		User: user,
+		Text: text,
+		Date: &actualTime,
+		IsRt: false,
 	}
 	return &tweet
 }
@@ -49,10 +50,10 @@ func NewImageTweet(user, text, URL string) *ImageTweet {
 	actualTime := time.Now()
 	tweet := ImageTweet{
 		TextTweet: TextTweet{
-			User:      user,
-			Text:      text,
-			Date:      &actualTime,
-			IsRetweet: false,
+			User: user,
+			Text: text,
+			Date: &actualTime,
+			IsRt: false,
 		},
 		Image: URL,
 	}
@@ -64,20 +65,68 @@ func NewQuoteTweet(user, text string, quote Tweet) *QuoteTweet {
 	actualTime := time.Now()
 	tweet := QuoteTweet{
 		TextTweet: TextTweet{
-			User:      user,
-			Text:      text,
-			Date:      &actualTime,
-			IsRetweet: false,
+			User: user,
+			Text: text,
+			Date: &actualTime,
+			IsRt: false,
 		},
 		Quote: quote,
 	}
 	return &tweet
 }
 
-func NewRetweet(originalTweet *Tweet, retweeter string) *Tweet {
+func NewRetweet(originalTweet Tweet, retweeter string) Tweet {
 	actualTime := time.Now()
-	tweet := Tweet{User: originalTweet.User, Text: originalTweet.Text, Date: &actualTime, IsRetweet: true, RetweetedBy: retweeter}
-	return &tweet
+	var reTweet Tweet
+
+	if originalValueTweet, ok := originalTweet.(*ImageTweet); ok {
+		imageRetweet := ImageTweet{
+			TextTweet: TextTweet{
+				User:        originalTweet.GetUser(),
+				Text:        originalTweet.GetText(),
+				Date:        &actualTime,
+				IsRt:        true,
+				RetweetedBy: retweeter,
+			},
+			Image: originalValueTweet.Image,
+		}
+		reTweet = &imageRetweet
+	} else if originalValueTweet, ok := originalTweet.(*QuoteTweet); ok {
+		quoteRetweet := QuoteTweet{
+			TextTweet: TextTweet{
+				User:        originalTweet.GetUser(),
+				Text:        originalTweet.GetText(),
+				Date:        &actualTime,
+				IsRt:        true,
+				RetweetedBy: retweeter,
+			},
+			Quote: originalValueTweet.Quote,
+		}
+		reTweet = &quoteRetweet
+	} else {
+		textReTweet := TextTweet{
+			User:        originalTweet.GetUser(),
+			Text:        originalTweet.GetText(),
+			Date:        &actualTime,
+			IsRt:        true,
+			RetweetedBy: retweeter,
+		}
+		reTweet = &textReTweet
+	}
+
+	return reTweet
+}
+
+func (tweet *TextTweet) String() string {
+	return tweet.PrintableTweet()
+}
+
+func (tweet *ImageTweet) String() string {
+	return tweet.PrintableTweet()
+}
+
+func (tweet *QuoteTweet) String() string {
+	return tweet.PrintableTweet()
 }
 
 func (tweet *TextTweet) PrintableTweet() string {
@@ -141,4 +190,40 @@ func (tweet *ImageTweet) SetId(id int) {
 
 func (tweet *QuoteTweet) SetId(id int) {
 	tweet.Id = id
+}
+
+func (tweet *ImageTweet) IsRetweet() bool {
+	return tweet.IsRt
+}
+
+func (tweet *ImageTweet) RetweetedByWhom() string {
+	return tweet.RetweetedBy
+}
+
+func (tweet *QuoteTweet) IsRetweet() bool {
+	return tweet.IsRt
+}
+
+func (tweet *QuoteTweet) RetweetedByWhom() string {
+	return tweet.RetweetedBy
+}
+
+func (tweet *TextTweet) IsRetweet() bool {
+	return tweet.IsRt
+}
+
+func (tweet *TextTweet) RetweetedByWhom() string {
+	return tweet.RetweetedBy
+}
+
+func (tweet *TextTweet) GetDate() *time.Time {
+	return tweet.Date
+}
+
+func (tweet *ImageTweet) GetDate() *time.Time {
+	return tweet.Date
+}
+
+func (tweet *QuoteTweet) GetDate() *time.Time {
+	return tweet.Date
 }

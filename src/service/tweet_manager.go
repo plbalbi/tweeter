@@ -14,7 +14,7 @@ type wordCount map[string]int
 // key: 		user / destinatary
 // definition: 	*message
 type userInboxes map[string][]*domain.Message
-type tweetsMap map[string][]*domain.Tweet
+type tweetsMap map[string][]domain.Tweet
 
 type TweetManager struct {
 	tweets         tweetsMap
@@ -22,7 +22,7 @@ type TweetManager struct {
 	hashtagCount   wordCount
 	inboxes        userInboxes
 	lastFreeId     int
-	lastAddedTweet *domain.Tweet
+	lastAddedTweet domain.Tweet
 }
 
 func NewTweetManager() *TweetManager {
@@ -38,32 +38,32 @@ func NewTweetManager() *TweetManager {
 	return &tweetManager
 }
 
-func (tweetManager *TweetManager) PublishTweet(t *domain.Tweet) (int, error) {
+func (tweetManager *TweetManager) PublishTweet(t domain.Tweet) (int, error) {
 	// Error checking
-	if t.User == "" {
+	if t.GetUser() == "" {
 		return 0, fmt.Errorf("user is required")
 	}
-	if t.Text == "" {
+	if t.GetText() == "" {
 		return 0, fmt.Errorf("text is required")
 	}
-	if len(t.Text) > 140 {
+	if len(t.GetText()) > 140 {
 		return 0, fmt.Errorf("text longer that 140 characters")
 	}
 	// Tweet index tracking
-	t.Id = tweetManager.lastFreeId
+	t.SetId(tweetManager.lastFreeId)
 	tweetManager.lastFreeId++
 	tweetManager.lastAddedTweet = t
 	// Adding the tweet
-	tweetManager.tweets[t.User] = append(tweetManager.tweets[t.User], t)
+	tweetManager.tweets[t.GetUser()] = append(tweetManager.tweets[t.GetUser()], t)
 	// Updating hashtag count
-	for _, word := range strings.Fields(t.Text) {
+	for _, word := range strings.Fields(t.GetText()) {
 		if _, wordDefined := tweetManager.hashtagCount[word]; !wordDefined {
 			tweetManager.hashtagCount[word] = 1
 		} else {
 			tweetManager.hashtagCount[word]++
 		}
 	}
-	return t.Id, nil
+	return t.GetId(), nil
 }
 
 func (tweetManager *TweetManager) CleanTweets() {
@@ -76,8 +76,8 @@ func (tweetManager *TweetManager) CleanTweets() {
 
 // solucion medio mala
 // cambiar a iterador o una lista media ensamblada
-func (tweetManager *TweetManager) GetTweets() [](*domain.Tweet) {
-	allTweets := make([]*domain.Tweet, 0)
+func (tweetManager *TweetManager) GetTweets() []domain.Tweet {
+	allTweets := make([]domain.Tweet, 0)
 	for _, tweets := range tweetManager.tweets {
 		allTweets = append(allTweets, tweets...)
 	}
@@ -88,17 +88,17 @@ func (tweetManager *TweetManager) NoTweets() bool {
 	return len(tweetManager.tweets) == 0
 }
 
-func (tweetManager *TweetManager) GetTweetById(id int) *domain.Tweet {
+func (tweetManager *TweetManager) GetTweetById(id int) domain.Tweet {
 	allTweets := tweetManager.GetTweets()
 	for _, tweet := range allTweets {
-		if tweet.Id == id {
+		if tweet.GetId() == id {
 			return tweet
 		}
 	}
 	return nil
 }
 
-func (tweetManager *TweetManager) GetTweet() *domain.Tweet {
+func (tweetManager *TweetManager) GetTweet() domain.Tweet {
 	return tweetManager.lastAddedTweet
 }
 
@@ -106,7 +106,7 @@ func (tweetManager *TweetManager) CountTweetsByUser(user string) int {
 	return len(tweetManager.tweets[user])
 }
 
-func (tweetManager *TweetManager) GetTweetsByUser(user string) []*domain.Tweet {
+func (tweetManager *TweetManager) GetTweetsByUser(user string) []domain.Tweet {
 	return tweetManager.tweets[user]
 }
 
@@ -120,9 +120,9 @@ func (tweetManager *TweetManager) Follow(user string, toFollow string) error {
 	return nil
 }
 
-func (tweetManager *TweetManager) Timeline(user string) []*domain.Tweet {
+func (tweetManager *TweetManager) Timeline(user string) []domain.Tweet {
 	userFollows := tweetManager.follows[user]
-	timeline := make([]*domain.Tweet, 0)
+	timeline := make([]domain.Tweet, 0)
 	for _, follow := range userFollows {
 		timeline = append(timeline, tweetManager.GetTweetsByUser(follow)...)
 	}
@@ -193,13 +193,16 @@ func (tweetManager *TweetManager) SendDirectMessage(message *domain.Message, des
 	return nil
 }
 
-func (tweetManager *TweetManager) Retweet(originalTweet *domain.Tweet, retweeter string) error {
+func (tweetManager *TweetManager) Retweet(originalTweet domain.Tweet, retweeter string) error {
 	// Check if tweet is nil
 	if originalTweet == nil {
 		return fmt.Errorf("cannot retweet nil tweet")
 	}
 	retweet := domain.NewRetweet(originalTweet, retweeter)
 	retweetId, err := tweetManager.PublishTweet(retweet)
-	retweet.Id = retweetId
-	return err
+	if err != nil {
+		return err
+	}
+	retweet.SetId(retweetId)
+	return nil
 }
