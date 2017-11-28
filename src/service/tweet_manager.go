@@ -7,6 +7,10 @@ import (
 	"github.com/tweeter/src/domain"
 )
 
+type TweeterPlugin interface {
+	Publish(tweet domain.Tweet)
+}
+
 type followsMap map[string][]string
 type wordCount map[string]int
 
@@ -14,6 +18,7 @@ type wordCount map[string]int
 // key: 		user / destinatary
 // definition: 	*message
 type userInboxes map[string][]*domain.Message
+type pluginCollection []TweeterPlugin
 type tweetsMap map[string][]domain.Tweet
 
 type TweetManager struct {
@@ -21,6 +26,7 @@ type TweetManager struct {
 	follows        followsMap
 	hashtagCount   wordCount
 	inboxes        userInboxes
+	plugins        pluginCollection
 	lastFreeId     int
 	lastAddedTweet domain.Tweet
 }
@@ -63,6 +69,14 @@ func (tweetManager *TweetManager) PublishTweet(t domain.Tweet) (int, error) {
 			tweetManager.hashtagCount[word]++
 		}
 	}
+	// Llamo al Publish() de cada plugin
+	if len(tweetManager.plugins) > 0 {
+		// Si hay algún plugin, llamo Publish(tweetPublicado) por cada plugin
+		for _, plugin := range tweetManager.plugins {
+			plugin.Publish(t)
+		}
+	}
+
 	return t.GetId(), nil
 }
 
