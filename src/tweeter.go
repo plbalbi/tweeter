@@ -20,6 +20,8 @@ func getPreetyDate(date *time.Time) string {
 
 func main() {
 	shell := ishell.New()
+	shell.ClearScreen()
+	shell.Print(WelcomeMessage())
 	shell.SetPrompt("Tweeter >> ")
 	shell.Print("Type 'help' to know commands\n")
 	tweetManager := service.NewTweetManager()
@@ -33,7 +35,7 @@ func main() {
 			user := c.ReadLine()
 			c.Print("Write you tweet: ")
 			tweet := c.ReadLine()
-			publishedTweetId, err := tweetManager.PublishTweet(domain.NewTweet(user, tweet))
+			publishedTweetId, err := tweetManager.PublishTweet(domain.NewTextTweet(user, tweet))
 			if err != nil {
 				if err.Error() == "user is required" {
 					c.Print("user is required to tweet")
@@ -154,8 +156,7 @@ func main() {
 			c.Printf("\tTimeline from %s\n", user)
 			c.Print("---------------------------------\n")
 			for _, tweet := range timeline {
-				c.Printf("%s tweeted at %s, on %s:\n\t%s\n", tweet.User, getPreetyHour(tweet.Date),
-					getPreetyDate(tweet.Date), tweet.Text)
+				c.Println(tweet)
 			}
 			return
 		},
@@ -276,19 +277,46 @@ func PreetyPrintInbox(c *ishell.Context, inbox []*domain.Message) {
 	}
 }
 
-func PreetyPrintTweets(c *ishell.Context, tweets []*domain.Tweet) {
-	BOLD := "\033[1m"
-	END := "\033[0m"
+func PreetyPrintTweets(c *ishell.Context, tweets []domain.Tweet) {
+	// BOLD := "\033[1m"
+	// END := "\033[0m"
 	for _, tweet := range tweets {
-		if tweet.IsRetweet {
-			c.Printf("------------------------------------------------------ #%d\n", tweet.Id)
-			c.Printf("%s%s%s retweeted '%s' (by %s), \nat %s on %s\n", BOLD, tweet.User, END, tweet.Text, tweet.RetweetedBy, getPreetyHour(tweet.Date), getPreetyDate(tweet.Date))
-			c.Println("------------------------------------------------------")
+		if tweet.IsRetweet() {
 		} else {
-			c.Printf("------------------------------------------------------ #%d\n", tweet.Id)
-			c.Printf("%s%s%s tweeted '%s', \nat %s on %s\n", BOLD, tweet.User, END, tweet.Text, getPreetyHour(tweet.Date), getPreetyDate(tweet.Date))
-			c.Println("------------------------------------------------------")
 		}
 
 	}
+}
+
+func WelcomeMessage() string {
+	return `
+		--------------------------------------------------
+		------------------- TWEETER ----------------------
+		--------------------------------------------------
+		MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+		MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+		MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMds+///+shNMMMMMMMMNM
+		MMMomMMMMMMMMMMMMMMMMMMMMMMd/'          :yNdyo:-NM
+		MMo  +mMMMMMMMMMMMMMMMMMMN/                   +NMN
+		MM.    :hMMMMMMMMMMMMMMMN-                  .//-/m
+		MM-       +hNMMMMMMMMMMMs                     :hMM
+		MMy          -+ymMMMMMMM+                    mMMMM
+		MMMs              .:/oss/                   .MMMMM
+		MMydd/                                      :MMMMM
+		MM-                                         sMMMMM
+		MMd                                         NMMMMM
+		MMMd.                                      oMMMMMM
+		MMMMMy-                                   :MMMMMMM
+		MMMMMNhy+-                               -NMMMMMMM
+		MMMMMM/                                 :NMMMMMMMM
+		MMMMMMMy.                              +MMMMMMMMMM
+		MMMMMMMMMh+.                         -dMMMMMMMMMMM
+		MMMMMMMMMMMMMh:                    .yMMMMMMMMMMMMM
+		MMMMMMMMMdy/.                    :hMMMMMMMMMMMMMMM
+		my++/:-.                      :sNMMMMMMMMMMMMMMMMM
+		MMNho:a                  .:ohMMMMMMMMMMMMMMMMMMMMM
+		MMMMMMMNdhso++////++oyhmMMMMMMMMMMMMMMMMMMMMMMMMMM
+		MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+		MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+		`
 }
