@@ -19,11 +19,13 @@ func TestCanWriteATweet(t *testing.T) {
 	tweetsToWrite := make(chan domain.Tweet)
 	quit := make(chan bool)
 
-	go tweetWriter.WriteTweet(tweetsToWrite, quit)
+	go tweetWriter.WriteTweet(&tweetsToWrite, &quit)
 
 	// Operation
 	tweetsToWrite <- tweet
 	tweetsToWrite <- tweet2
+
+	close(tweetsToWrite)
 
 	<-quit
 
