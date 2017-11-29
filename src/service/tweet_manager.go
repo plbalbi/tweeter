@@ -2,14 +2,18 @@ package service
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/tweeter/src/domain"
 )
 
 type TweeterPlugin interface {
 	Publish(tweet domain.Tweet)
 }
+
+var tms *TweetManagerServer
 
 type followsMap map[string][]string
 type wordCount map[string]int
@@ -31,6 +35,29 @@ type TweetManager struct {
 	lastAddedTweet  domain.Tweet
 	CTR             *ChannelTweetWriter
 	blockingChannel *chan bool
+}
+
+type TweetManagerServer struct {
+	TM     *TweetManager
+	server *gin.Engine
+}
+
+func NewTweetManagerServer() *TweetManagerServer {
+	tms_local := TweetManagerServer{
+		TM:     NewTweetManager(nil),
+		server: gin.Default(),
+	}
+	tms = &tms_local
+	tms.server.GET("/getTweets", getAllTweets)
+	return tms
+}
+
+func getAllTweets(c *gin.Context) {
+	c.JSON(http.StatusOK, tms.TM.GetTweets())
+}
+
+func (tms *TweetManagerServer) Launch() {
+	go tms.server.Run()
 }
 
 func NewTweetManager(ctr *ChannelTweetWriter) *TweetManager {

@@ -24,7 +24,8 @@ func main() {
 	shell.Print(WelcomeMessage())
 	shell.SetPrompt("Tweeter >> ")
 	shell.Print("Type 'help' to know commands\n")
-	tweetManager := service.NewTweetManager()
+	tms := service.NewTweetManagerServer()
+	tweetManager := tms.TM
 
 	shell.AddCmd(&ishell.Cmd{
 		Name: "publishTweet",
@@ -252,6 +253,7 @@ func main() {
 		},
 	})
 
+	tms.Launch()
 	shell.Run()
 }
 
