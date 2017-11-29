@@ -27,15 +27,13 @@ type ChannelTweetWriter struct {
 
 func (tr *ChannelTweetWriter) WriteTweet(ts *chan domain.Tweet, quit *chan bool) {
 	tweet, open := <-*ts
-	singleTweetQuit := make(chan bool)
 	for open {
-		go tr.tweetWriter.WriteTweet(tweet, &singleTweetQuit)
-		<-singleTweetQuit
+		go tr.tweetWriter.WriteTweet(tweet, quit)
+		<-*quit
 		tweet, open = <-*ts
 	}
 	// Desbloquea quit, deberia? No tiene que ser asincrónico con respecto
 	// al llamador de 'WriteTweet' del 'ChannelTweetWriter'
-	*quit <- true
 }
 
 func (tr *FileTweetWriter) WriteTweet(tweet domain.Tweet, singleTweetQuit *chan bool) {

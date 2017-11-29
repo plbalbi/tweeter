@@ -11,14 +11,14 @@ import (
 var tweetManager *service.TweetManager
 
 func TestMain(m *testing.M) {
-	tweetManager = service.NewTweetManager()
+	tweetManager = service.NewTweetManager(nil)
 	m.Run()
 }
 
 func TestPublishedTweetIsSaved(t *testing.T) {
 
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(nil)
 
 	var tweet domain.Tweet
 
@@ -39,7 +39,7 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(nil)
 
 	var tweet domain.Tweet
 
@@ -61,7 +61,7 @@ func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(nil)
 
 	var tweet domain.Tweet
 
@@ -88,7 +88,7 @@ func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(nil)
 
 	var tweet domain.Tweet
 
@@ -115,7 +115,7 @@ func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(nil)
 
 	var tweet, secondTweet domain.Tweet
 
@@ -157,7 +157,7 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 func TestCanRetrieveTweetById(t *testing.T) {
 
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(nil)
 
 	var tweet domain.Tweet
 	var id int
@@ -179,7 +179,7 @@ func TestCanRetrieveTweetById(t *testing.T) {
 func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
 
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(nil)
 
 	var tweet, secondTweet, thirdTweet domain.Tweet
 
@@ -209,7 +209,7 @@ func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
 func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 
 	// Initialization
-	tweetManager := service.NewTweetManager()
+	tweetManager := service.NewTweetManager(nil)
 
 	var tweet, secondTweet, thirdTweet domain.Tweet
 
@@ -271,7 +271,7 @@ func isValidTweet(t *testing.T, tweet domain.Tweet, id int, user, text string) b
 }
 
 func TestTrendingTopicOk(t *testing.T) {
-	tweetManager = service.NewTweetManager()
+	tweetManager = service.NewTweetManager(nil)
 	tweet1 := domain.NewTextTweet("perro", "esto es re loco #dogchow #eukanuba #fritolin")
 	tweet2 := domain.NewTextTweet("perro2", "esto es re loco #dogchow #eukanuba")
 	tweetManager.PublishTweet(tweet1)
@@ -294,7 +294,7 @@ func TestTrendingTopicOk(t *testing.T) {
 }
 
 func TestSendDirectMessageAndGetAllOfThem(t *testing.T) {
-	tweetManager = service.NewTweetManager()
+	tweetManager = service.NewTweetManager(nil)
 	msg1 := domain.NewMessage("perro2", "hola")
 	msg2 := domain.NewMessage("perro3", "hola")
 	msg3 := domain.NewMessage("perro4", "hola")
@@ -311,7 +311,7 @@ func TestSendDirectMessageAndGetAllOfThem(t *testing.T) {
 
 }
 func TestGetUnreadMessagesAndRead(t *testing.T) {
-	tweetManager = service.NewTweetManager()
+	tweetManager = service.NewTweetManager(nil)
 	if tweetManager.GetTweet() != nil {
 		t.Errorf("tweeterManager not beign cleaned")
 	}
@@ -342,7 +342,7 @@ func TestGetUnreadMessagesAndRead(t *testing.T) {
 }
 
 func TestErrorWhenSendingMessage(t *testing.T) {
-	tweetManager = service.NewTweetManager()
+	tweetManager = service.NewTweetManager(nil)
 	if tweetManager.GetTweet() != nil {
 		t.Errorf("tweeterManager not beign cleaned")
 	}
@@ -361,7 +361,7 @@ func TestErrorWhenSendingMessage(t *testing.T) {
 }
 
 func TestRetweetOk(t *testing.T) {
-	tweetManager = service.NewTweetManager()
+	tweetManager = service.NewTweetManager(nil)
 	tweet := domain.NewTextTweet("perro", "esto es re loco #dogchow #eukanuba #fritolin")
 	tweetManager.Retweet(tweet, "gato")
 	if tweetManager.GetTweet().GetUser() != tweet.GetUser() ||
@@ -373,7 +373,7 @@ func TestRetweetOk(t *testing.T) {
 }
 
 func TestRetweetNilTweet(t *testing.T) {
-	tweetManager = service.NewTweetManager()
+	tweetManager = service.NewTweetManager(nil)
 	var tweet domain.Tweet = nil
 	err := tweetManager.Retweet(tweet, "gato")
 	if err != nil && err.Error() != "cannot retweet nil tweet" {

@@ -22,16 +22,18 @@ type pluginCollection []TweeterPlugin
 type tweetsMap map[string][]domain.Tweet
 
 type TweetManager struct {
-	tweets         tweetsMap
-	follows        followsMap
-	hashtagCount   wordCount
-	inboxes        userInboxes
-	plugins        pluginCollection
-	lastFreeId     int
-	lastAddedTweet domain.Tweet
+	tweets          tweetsMap
+	follows         followsMap
+	hashtagCount    wordCount
+	inboxes         userInboxes
+	plugins         pluginCollection
+	lastFreeId      int
+	lastAddedTweet  domain.Tweet
+	CTR             *ChannelTweetWriter
+	blockingChannel *chan bool
 }
 
-func NewTweetManager() *TweetManager {
+func NewTweetManager(ctr *ChannelTweetWriter) *TweetManager {
 	var tweetManager TweetManager = TweetManager{
 		tweets:         make(tweetsMap),
 		follows:        make(followsMap),
@@ -40,7 +42,10 @@ func NewTweetManager() *TweetManager {
 		plugins:        make(pluginCollection, 0),
 		lastFreeId:     0,
 		lastAddedTweet: nil,
+		CTR:            ctr,
 	}
+	bChannel := make(chan bool)
+	tweetManager.blockingChannel = &bChannel
 	// initialize empty slice
 	return &tweetManager
 }
@@ -70,6 +75,13 @@ func (tweetManager *TweetManager) PublishTweet(t domain.Tweet) (int, error) {
 			tweetManager.hashtagCount[word]++
 		}
 	}
+	// Publish tweet via tweet writer, and block it
+	if tweetManager.CTR != nil {
+		singleTweetChannel := make(chan domain.Tweet)
+		tweetManager.CTR.WriteTweet(&singleTweetChannel, tweetManager.blockingChannel)
+		singleTweetChannel <- t
+	}
+
 	// Llamo al Publish() de cada plugin
 	if len(tweetManager.plugins) > 0 {
 		// Si hay algún plugin, llamo Publish(tweetPublicado) por cada plugin
